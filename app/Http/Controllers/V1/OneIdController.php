@@ -28,7 +28,8 @@ class OneIdController extends AuthController implements AuthInterface
         /** @var User $user */
         $user = $this->service->checkRegister($request->all());
         if($this->authenticate($user->pin)) {
-            return redirect()->route('dashboard');
+            return true;
+//            return redirect()->route('dashboard');
         }
         return back()->with(['error']);
     }
