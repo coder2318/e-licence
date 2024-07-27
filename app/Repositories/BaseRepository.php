@@ -41,12 +41,12 @@ class BaseRepository
         }
     }
 
-    public function getById($id)
+    public function getById($id, $relation = null)
     {
-        $model = $this->entity->withoutGlobalScopes()->find($id);
-        if (!$model || $model->deleted_at)
-            abort(404);
-        return $model;
+        if($relation)
+            return $this->entity->with($relation)->findOrFail($id);
+
+        return $this->entity->findOrFail($id);
     }
 
     public function destroy(int $id)

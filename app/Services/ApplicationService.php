@@ -12,6 +12,12 @@ class ApplicationService extends BaseService
     public function __construct(ApplicationRepository $repo)
     {
         $this->repo = $repo;
+        $this->relation = ['user'];
+        $this->filter_fields = [
+            'name' => ['type' => 'string'], 'user_id' => ['type' => 'number'],
+        ];
+        $this->sort_fields = [];
+        $this->attributes = ['*'];
     }
 
     public function create($params): object

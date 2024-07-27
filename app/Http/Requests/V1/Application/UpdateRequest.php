@@ -14,7 +14,6 @@ class UpdateRequest extends ValidationRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['nullable', 'exists:users,id'],
             'reason_rejected' => ['nullable'],
             'name' => ['nullable'],
             'address' => ['nullable'],

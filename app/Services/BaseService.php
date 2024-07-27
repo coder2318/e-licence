@@ -30,7 +30,7 @@ class BaseService
         $query = $this->repo->getQuery();
         $query = $this->relation($query, $this->relation);
         $query = $this->filter($query, $this->filter_fields, $params);
-        $query = $this->sort($query, $this->sort_fields, $params);
+        $query = $this->sort($query, $params, $this->sort_fields);
         $query = $this->select($query, $this->attributes);
         return $this->repo->getOrPaginate($query, $perPage);
     }
@@ -147,11 +147,11 @@ class BaseService
 
     /**
      * @param $query
-     * @param array $sort_fields
      * @param array $params
+     * @param array|null $sort_fields
      * @return Builder
      */
-    public function sort($query, array $params, array $sort_fields = []): Builder
+    public function sort($query, array $params, array $sort_fields = null): Builder
     {
         $key = 'id';
         $order = 'desc';
@@ -159,7 +159,7 @@ class BaseService
             $key = $sort_fields['sort_key'];
             $order = $sort_fields['sort_type'];
         }
-        if (isset($params) and isset($params['sort_by'])) {
+        if (isset($params['sort_by'])) {
             $key = $params['sort_by'];
             $order = $params['order_by']??'desc';
         }
@@ -183,6 +183,8 @@ class BaseService
      */
     public function show($id): mixed
     {
+        if(count($this->relation))
+            return $this->repo->getById($id, $this->relation);
         return $this->repo->getById($id);
     }
 

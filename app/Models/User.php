@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
@@ -54,16 +55,16 @@ class User extends Authenticatable
         'data' => 'array'
     ];
 
-    public static function getUserRoleNames(): array
-    {
-        if(Auth::check())
-            return Auth::user()->getRoleNames()->toArray();
-        return [];
-    }
-
     public function isAdmin(): bool
     {
         return in_array(self::ROLE_ADMIN, $this->getUserRoleNames());
+    }
+
+    public static function getUserRoleNames(): array
+    {
+        if (Auth::check())
+            return Auth::user()->getRoleNames()->toArray();
+        return [];
     }
 
     public function isCouncil(): bool
@@ -79,6 +80,16 @@ class User extends Authenticatable
     public function isModerator(): bool
     {
         return in_array(self::ROLE_MODERATOR, $this->getUserRoleNames());
+    }
+
+    public function application(): HasMany
+    {
+        return $this->hasMany(Application::class);
+    }
+
+    public static function getAuthUser(): ?\Illuminate\Contracts\Auth\Authenticatable
+    {
+        return Auth::user();
     }
 
 }

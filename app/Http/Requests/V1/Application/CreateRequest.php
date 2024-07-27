@@ -15,7 +15,6 @@ class CreateRequest extends ValidationRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['required', 'exists:users,id'],
             'reason_rejected' => ['nullable'],
             'name' => ['required'],
             'address' => ['required'],
