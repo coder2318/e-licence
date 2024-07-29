@@ -12,7 +12,7 @@ $(function () {
     btnDestroy = $('#document-Destroy'),
     btnInit = $('#document-Init');
 
-  // Document 5 Sec Timeout
+  // OneID 5 Sec Timeout
   // --------------------------------------------------------------------
   if (timerDoc.length) {
     var docTimeout = 5000;

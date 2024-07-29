@@ -49,7 +49,7 @@ class Application extends Model
     {
         parent::boot();
         self::creating(function ($model) {
-            $model->user_id = Auth::id();
+            $model->user_id = User::getAuthUser()->getAuthIdentifier();
         });
     }
 

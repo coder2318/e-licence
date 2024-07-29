@@ -11,6 +11,7 @@ class OneIdService
 
     public function checkRegister($params): User|Model
     {
+        dd($params);
         return User::query()->updateOrCreate([
             'pin' => $params['pin'],
         ], [

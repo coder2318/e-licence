@@ -50,6 +50,7 @@ class ApplicationController extends Controller
      */
     public function store(CreateRequest $request)
     {
+        dd($request->all());
         return $this->service->create($request->validated());
         return redirect()->route('application.index');
     }

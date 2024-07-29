@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Action extends Model
 {
@@ -17,4 +18,12 @@ class Action extends Model
         'signed',
         'comment',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+        self::creating(function ($model) {
+            $model->user_id = User::getAuthUser()->getAuthIdentifier();
+        });
+    }
 }

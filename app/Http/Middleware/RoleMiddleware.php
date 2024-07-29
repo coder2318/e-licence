@@ -17,7 +17,7 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if(count(array_diff($roles, User::getUserRoleNames())) > 0){
+        if(in_array(User::getUserRoleNames(), $roles)){
             abort(403);
         }
 

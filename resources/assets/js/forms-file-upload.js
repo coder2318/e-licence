@@ -39,6 +39,19 @@
     });
   }
 
+    // Basic Dropzone
+    // --------------------------------------------------------------------
+    const dropzoneSecond = document.querySelector('#dropzone-second');
+    if (dropzoneSecond) {
+        const myDropzoneSecond = new Dropzone(dropzoneSecond, {
+            previewTemplate: previewTemplate,
+            parallelUploads: 1,
+            maxFilesize: 5,
+            addRemoveLinks: true,
+            maxFiles: 1
+        });
+    }
+
   // Multiple Dropzone
   // --------------------------------------------------------------------
   const dropzoneMulti = document.querySelector('#dropzone-multi');
