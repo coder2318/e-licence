@@ -2,12 +2,14 @@
 
 namespace App\Interfaces;
 
-use Illuminate\Http\Request;
+use App\Models\User;
 
 interface AuthInterface
 {
-    public function authenticate(string $pin): bool;
+    public function authenticate(User $user): bool;
 
-    public function login(Request $request);
+    public function userLogin($params);
+
+    public function adminLogin($params);
 
 }

@@ -10,6 +10,17 @@ use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * @property  string              $pin
+ * @property  string              $username
+ * @property  string              $f_name
+ * @property  string              $l_name
+ * @property  string              $s_name
+ * @property  string              $avatar
+ * @property  string              $tin
+ * @property  string              $passport
+ * @property  array               $data
+ */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;

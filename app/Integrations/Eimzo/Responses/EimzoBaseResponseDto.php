@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Integrations\OneID\Responses;
+namespace App\Integrations\Eimzo\Responses;
 
 use App\Integrations\Base\Traits\AutoSetTrait;
 
-abstract class OneIDBaseResponseDto
+abstract class EimzoBaseResponseDto
 {
     use AutoSetTrait;
 

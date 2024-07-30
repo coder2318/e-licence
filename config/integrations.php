@@ -9,6 +9,13 @@ return [
         'redirect_uri' => env('ONEID_REDIRECT_URI', ''),
         'scope' => env('ONEID_SCOPE', ''),
         'state' => env('ONEID_STATE', ''),
+    ],
+
+    'eimzo' => [
+        'base_url' => env('EIMZO_BASE_URL', ''),
+        'challenge_url' => env('EIMZO_CHALLENGE_URL', ''),
+        'auth_url' => env('EIMZO_AUTH_URL', ''),
+        'verify_url' => env('EIMZO_VERIFY_URL', ''),
     ]
 
 ];

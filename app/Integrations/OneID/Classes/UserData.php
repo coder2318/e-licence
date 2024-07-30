@@ -1,13 +1,12 @@
 <?php
 
 namespace App\Integrations\OneID\Classes;
-
-use App\Integrations\Base\Exceptions\ClientError;
-use App\Integrations\Base\Exceptions\ConnectionException;
-use App\Integrations\Base\Exceptions\ServerException;
-use App\Integrations\Base\Exceptions\TimeoutException;
-use App\Integrations\Base\Exceptions\UnknownError;
-use App\Integrations\OneID\Responses\OneIDUserResponse;
+use App\Integrations\Base\Exceptions\{ClientError,
+    ConnectionException,
+    ServerException,
+    TimeoutException,
+    UnknownError};
+use App\Integrations\OneID\Responses\{OneIDAccessTokenResponse, OneIDUserResponse};
 use App\Integrations\OneID\Utils\OneIDClient;
 use GuzzleHttp\Exception\GuzzleException;
 use JsonException;
@@ -22,7 +21,7 @@ class UserData
     }
 
     /**
-     * @param string $document_id
+     * @param string $code
      *
      * @throws ClientError
      * @throws ConnectionException
@@ -34,7 +33,7 @@ class UserData
      */
     public function getAccessToken(string $code): array|bool
     {
-        $data = $this->client->sendGet('', [
+        $data = $this->client->sendPost('', [
             'query' => [
                 'grant_type' => 'one_authorization_code',
                 'client_id' => $this->client->client_id,
@@ -44,19 +43,19 @@ class UserData
             ]
         ]);
         if (isset($data['access_token'], $data['scope']) && $data['scope'] == config('integrations.oneID.scope')) {
-            $document = new OneIDUserResponse($data['body']['OneID']);
+            $accessToken = new OneIDAccessTokenResponse($data);
             return [
-                'id' => $document->id,
-                'create_time' => $document->create_time,
-                'name' => $document->name,
-                'versions' => $document->getVersions()
+                'scope' => $accessToken->scope,
+                'refresh_token' => $accessToken->refresh_token,
+                'expires_in' => $accessToken->expires_in,
+                'access_token' => $accessToken->getAccessToken(),
             ];
         }
         return false;
     }
 
     /**
-     * @param array $params
+     * @param string $access_token
      *
      * @throws ClientError
      * @throws ConnectionException
@@ -66,21 +65,31 @@ class UserData
      * @throws GuzzleException
      * @throws JsonException
      */
-    public function createContract(array $params): array|bool
+    public function getUserData(string $access_token): array|bool
     {
-        $data = $this->client->sendPost('core/hook/on/ordering', [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->client->token
-            ],
-            'json' => $params
+        $data = $this->client->sendPost('', [
+            'query' => [
+                'grant_type' => 'one_access_token_identify',
+                'client_id' => $this->client->client_id,
+                'client_secret' => $this->client->client_secret,
+                'access_token' => $access_token,
+                'scope' => config('integrations.oneID.scope')
+            ]
         ]);
-        if ($data['success'] && isset($data['body']['document']['contract'])) {
-            $document = new OneIDUserResponse($data['body']['document']['contract']);
+        if (isset($data['pin'], $data['auth_method'])) {
+            $userData = new OneIDUserResponse($data);
             return [
-                'id' => $document->id,
-                'date' => $document->date,
-                'name' => $document->name,
-                'serialNumber' => $document->serialNumber
+                'pin' => $userData->getPin(),
+                'passport' => $userData->getPassport(),
+                'f_name' => $userData->first_name,
+                'l_name' => $userData->sur_name,
+                's_name' => $userData->mid_name,
+                'username' => $userData->user_id,
+                'gender' => $userData->gender(),
+                'isJuridic' => $userData->isJuridic(),
+                'tin' => $userData->getLegalTin(),
+                'legalInfo' => $userData->getLegalInfo(),
+                'data' => $data
             ];
         }
         return false;

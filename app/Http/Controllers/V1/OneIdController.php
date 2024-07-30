@@ -2,80 +2,87 @@
 
 namespace App\Http\Controllers\V1;
 
+use App\Integrations\Base\Exceptions\ClientError;
+use App\Integrations\Base\Exceptions\ConnectionException;
+use App\Integrations\Base\Exceptions\ServerException;
+use App\Integrations\Base\Exceptions\TimeoutException;
+use App\Integrations\Base\Exceptions\UnknownError;
 use App\Interfaces\AuthInterface;
 use App\Models\User;
 use App\Services\OneIdService;
-use GuzzleHttp\Client;
-use Illuminate\Database\Eloquent\Model;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use JsonException;
 
 class OneIdController extends AuthController implements AuthInterface
 {
     protected string $url;
+    protected string $client_id;
+    protected string $redirect_url;
+    protected string $scope;
+    protected string $state;
 
     public function __construct(protected OneIdService $service)
     {
-        $this->url = 'https://sso.egov.uz/sso/oauth/Authorization.do';
+        $this->url = config('integrations.oneID.url');
+        $this->client_id = config('integrations.oneID.client_id');
+        $this->redirect_url = config('integrations.oneID.redirect_uri');
+        $this->scope = config('integrations.oneID.redirect_uri');
+        $this->state = config('integrations.oneID.state');
     }
 
-    public function authenticate(string $pin): bool
+    public function redirect(): RedirectResponse
     {
-        return Auth::attempt(['pin' => $pin, 'password' => $pin]);
+        $redirectUrl = $this->url . "?response_type=one_code&client_id=$this->client_id&redirect_uri=$this->redirect_url&scope=$this->scope&state=$this->state";
+        return redirect($redirectUrl);
     }
 
-    public function login(Request $request)
+    /**
+     * @throws ConnectionException
+     * @throws TimeoutException
+     * @throws UnknownError
+     * @throws JsonException
+     * @throws ClientError
+     * @throws ServerException
+     * @throws GuzzleException
+     */
+    public function callback(Request $request): RedirectResponse
     {
-        $client = new Client();
+        if ($request->has('code')) {
+            $data = $this->service->userData($request->all());
+            return $this->userLogin($data);
 
-        try {
-            $res = $client->post('https://sso.egov.uz/sso/oauth/Authorization.do', [
-                'query' => [
-                    'grant_type' => 'one_access_token_identify',
-                    'client_id' => 'tris_uz',
-                    'client_secret' => 'E00z0LvtgW5Bta2aAw47nQsp',
-//                    'redirect_uri' => 'https://standart.tris.lo',
-                        'scope' => 'tris_uz',
-'access_token' => '76381f69-d23d-41d8-b023-9bfb44df8ed0'
-//                    'state' => 'e-licence',
-                ]
-            ]);
-
-            dd($res->getBody()->getContents());
-        } catch (\Exception $exception){
-            dd($exception->getMessage());
         }
+        return back();
+    }
+
+    public function userLogin($params): RedirectResponse
+    {
+        if(!$params['isJuridic'])
+            abort(403,'Faqat Yuridik shaxs kira oladi');
+
         /** @var User $user */
-        $user = $this->service->checkRegister($request->all());
-        if($this->authenticate($user->pin)) {
-//            return true;
+        $user = $this->service->checkRegister($params);
+        $this->service->getRole($user, User::ROLE_USER);
+
+        if ($this->authenticate($user)) {
             return redirect()->route('dashboard');
         }
         return back()->with(['error']);
     }
 
-    public function sendRequest(Request $request)
+    public function adminLogin($params): RedirectResponse
     {
+        /** @var User $user */
+        $user = $this->service->checkRegister($params);
+        $this->service->getRole($user, User::ROLE_ADMIN);
 
+        if ($this->authenticate($user)) {
+            return redirect()->route('dashboard');
+        }
+        return back()->with(['error']);
     }
 
-    public function getCode(Request $request)
-    {
-
-    }
-
-    public function getToken(Request $request)
-    {
-
-    }
-
-    public function getInfo(Request $request)
-    {
-
-    }
-
-    public function getParams(Request $request)
-    {
-
-    }
 }

@@ -2,20 +2,43 @@
 
 namespace App\Http\Controllers\V1;
 
-use App\Http\Controllers\Controller;
 use App\Interfaces\AuthInterface;
+use App\Models\User;
+use App\Services\EimzoService;
 use Illuminate\Http\Request;
 
 class EimzoController extends AuthController implements AuthInterface
 {
 
-    public function authenticate(string $pin): bool
+    public function __construct(protected EimzoService $service)
     {
-        // TODO: Implement authenticate() method.
     }
 
-    public function login(Request $request): bool
+    public function userLogin($params): \Illuminate\Http\RedirectResponse
     {
-        // TODO: Implement login() method.
+        /** @var User $user */
+                $user = $this->service->checkRegister($params);
+        $this->service->getRole($user, User::ROLE_USER);
+
+        if ($this->authenticate($user)) {
+            return redirect()->route('dashboard');
+        }
+        return back()->with(['error']);
+    }
+
+    public function adminLogin($params)
+    {
+        // TODO: Implement adminLogin() method.
+    }
+
+    public function challenge()
+    {
+        return $this->service->challenge();
+    }
+
+    public function auth(Request $request)
+    {
+        return response()->json($this->service->auth($request));
+//        return $this->userLogin($params);
     }
 }
