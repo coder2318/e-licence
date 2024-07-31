@@ -19,7 +19,7 @@ trait FilesUpload
         if (isset($params[$column]) && $params[$column]) {
             if ($model) {
                 if (isset($model->$column)){
-                    $this->deleteFile($model, $pathFile, $column);
+                    $this->deleteFile($model, $column);
                 }
             }
             $fileName = $column.'_'.time() . '.' . $params[$column]->extension();
@@ -28,7 +28,6 @@ trait FilesUpload
             $params[$column] = 'storage/'.$pathFile.$fileName;
 
         }
-
 //        if (isset($params['files']) && count($params['files'])) {
 //            $fileNames = [];
 //            if ($model) {
@@ -47,7 +46,6 @@ trait FilesUpload
 //            $fileString = implode(',', $fileNames);
 //            $params['files'] = $fileString;
 //        }
-
         return $params;
     }
 
@@ -60,18 +58,18 @@ trait FilesUpload
         }
     }
 
-    public function deleteFile($model, $path, $column): bool
+    public function deleteFile($model, $column): bool
     {
         if($model->$column){
-            unlink($path.$model->$column);
+            unlink($model->$column);
         }
 
-        if($model->$column){
-            $old_images = explode(',', $model->$column);
-            foreach($old_images as $old_image){
-                unlink($path.$old_image);
-            }
-        }
+//        if($model->$column){
+//            $old_images = explode(',', $model->$column);
+//            foreach($old_images as $old_image){
+//                unlink($path.$old_image);
+//            }
+//        }
 
         return true;
     }

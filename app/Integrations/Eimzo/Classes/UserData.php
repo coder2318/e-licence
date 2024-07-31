@@ -74,7 +74,7 @@ class UserData
         $keyId = $request->input('keyId');
         $data = $this->client->sendPost($this->client->authUrl, [
             'headers' => $headers,
-            'form_params' => [$pkcs7],
+            'body' => $pkcs7,
         ]);
         if (isset($data['status'], $data['subjectCertificateInfo']) && $data['status'] == 1) {
 

@@ -1,53 +1,10 @@
 {
     "menu": [
         {
-            "name": "Dashboards",
+            "route": "application.index",
             "role": "user",
             "icon": "menu-icon tf-icons ti ti-smart-home",
-            "slug": "dashboard",
-            "badge": [
-                "danger",
-                "5"
-            ],
-            "submenu": [
-                {
-                    "url": "/",
-                    "name": "Analytics",
-                    "slug": "dashboard-analytics"
-                }
-            ]
-        },
-        {
-            "name": "Front Pages",
-            "role": "user",
-            "icon": "menu-icon tf-icons ti ti-files",
-            "slug": "user-cabinet",
-            "submenu": [
-                {
-                    "url": "front-pages/pricing",
-                    "name": "Pricing",
-                    "slug": "front-pages-pricing",
-                    "target": "_blank"
-                },
-                {
-                    "url": "front-pages/payment",
-                    "name": "Payments",
-                    "slug": "front-pages-payment",
-                    "target": "_blank"
-                },
-                {
-                    "url": "front-pages/checkout",
-                    "name": "Checkout",
-                    "slug": "front-pages-checkout",
-                    "target": "_blank"
-                }
-            ]
-        },
-        {
-            "route": "application.create",
-            "role": "admin",
-            "icon": "menu-icon tf-icons ti ti-smart-home",
-            "name": "Add Product",
+            "name": "Applications list",
             "slug": "app-ecommerce-product-add"
         },
         {
@@ -55,7 +12,7 @@
         },
         {
             "url": "app/email",
-            "role": "user",
+            "role": "admin",
             "name": "Email",
             "icon": "menu-icon tf-icons ti ti-mail",
             "slug": "app-email"
@@ -206,7 +163,7 @@
         {
             "url": "app/logistics/fleet",
             "name": "Fleet",
-            "role": "user",
+            "role": "admin",
             "icon": "menu-icon tf-icons ti ti-truck",
             "slug": "app-logistics-fleet"
         },

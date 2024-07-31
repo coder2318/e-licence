@@ -21,7 +21,7 @@ class EimzoController extends AuthController implements AuthInterface
         $this->service->getRole($user, User::ROLE_USER);
 
         if ($this->authenticate($user)) {
-            return redirect()->route('dashboard');
+            return redirect()->route('application.index');
         }
         return back()->with(['error']);
     }
@@ -39,6 +39,5 @@ class EimzoController extends AuthController implements AuthInterface
     public function auth(Request $request)
     {
         return response()->json($this->service->auth($request));
-//        return $this->userLogin($params);
     }
 }

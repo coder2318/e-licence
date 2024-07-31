@@ -20,12 +20,12 @@ use Illuminate\Support\Facades\Session;
 class EimzoService
 {
     use AssignRoleTrait;
-    protected string $eimzoChallengeUrl;
+    protected string $baseUrl;
     protected string $eimzoAuthUrl;
 
     public function __construct()
     {
-        $this->eimzoChallengeUrl = config('integrations.eimzo.challenge_url');
+        $this->baseUrl = config('integrations.eimzo.base_url');
         $this->eimzoAuthUrl = config('integrations.eimzo.auth_url');;
     }
 
@@ -41,20 +41,6 @@ class EimzoService
     public function challenge()
     {
         $params = ['_uc' => time() . "_" . mt_rand()];
-//        $response = Http::get($this->eimzoChallengeUrl, $params);
-//
-//        if ($response->failed()) {
-//            return response()->json([
-//                'error' => 'Request failed with status code: ' . $response->status(),
-//                'message' => $response->body()
-//            ], $response->status());
-//        }
-//
-//        $data = $response->json();
-//
-//        if ($data['status'] != 1) {
-//            return response()->json(['error' => $data['message']], 400);
-//        }
         $eimzoClient = new Eimzo();
         $res = $eimzoClient->userData()->getChallenge($params);
         if($res)
@@ -83,19 +69,19 @@ class EimzoService
 
         $pkcs7 = $request->input('pkcs7');
         $keyId = $request->input('keyId');
-
         $ch = curl_init();
-        $postvars = $pkcs7;
-        $url = 'https://imzo.tris.uz/'.$this->eimzoAuthUrl;
+        $url = $this->baseUrl.$this->eimzoAuthUrl;
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, 1);                //0 for a get request
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postvars);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $pkcs7);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
         curl_setopt($ch, CURLOPT_TIMEOUT, 20);
         $response = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $body = curl_getinfo($ch);
+        info('body', [$body]);
         curl_close($ch);
         info('res', [$response]);
         if ($httpcode == 200) {
@@ -112,6 +98,7 @@ class EimzoService
 
                 $subjectInfo = $jr['subjectCertificateInfo'];
                 $pinfl = $subjectInfo['subjectName']['1.2.860.3.16.1.2'];
+
 
                 // Check if the user already exists
                 $user = User::where('pin', $pinfl)->first();
@@ -131,20 +118,21 @@ class EimzoService
 
                 }
                 Auth::login($user);
+                $this->getRole($user, User::ROLE_USER);
                 return [
                     'status' => 1,
-                    'redirect' => '/',
+                    'redirect' => route('application.index'),
                 ];
             }
         }
-
-
 
 //        $eimzoClient = new Eimzo();
 //        $res = $eimzoClient->userData()->getUserData($request);
 //        if($res)
 //            return $res;
 //        return false;
+
+
     }
 
     public function checkRegister($params): User|Model

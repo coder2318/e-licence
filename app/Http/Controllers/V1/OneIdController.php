@@ -60,15 +60,15 @@ class OneIdController extends AuthController implements AuthInterface
 
     public function userLogin($params): RedirectResponse
     {
-        if(!$params['isJuridic'])
-            abort(403,'Faqat Yuridik shaxs kira oladi');
+//        if(!$params['isJuridic'])
+//            abort(403,'Faqat Yuridik shaxs kira oladi');
 
         /** @var User $user */
         $user = $this->service->checkRegister($params);
         $this->service->getRole($user, User::ROLE_USER);
 
         if ($this->authenticate($user)) {
-            return redirect()->route('dashboard');
+            return redirect()->route('application.index');
         }
         return back()->with(['error']);
     }

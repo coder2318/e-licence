@@ -12,7 +12,7 @@ class ApplicationService extends BaseService
     public function __construct(ApplicationRepository $repo)
     {
         $this->repo = $repo;
-        $this->relation = ['user'];
+        $this->relation = ['user', 'action', 'history'];
         $this->filter_fields = [
             'name' => ['type' => 'string'], 'user_id' => ['type' => 'number'],
         ];
@@ -28,6 +28,17 @@ class ApplicationService extends BaseService
             }
         }
         return $this->repo->store($params);
+    }
+
+    public function edit($params, $id): mixed
+    {
+        $model = $this->repo->getById($id);
+        foreach ($params as $key => $value) {
+            if(File::isFile($value)){
+                $params = $this->fileUpload($params, 'applications', $key, $model);
+            }
+        }
+        return $this->repo->update($params, $id);
     }
 
 }

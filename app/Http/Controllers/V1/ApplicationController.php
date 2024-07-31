@@ -8,9 +8,8 @@ use App\Http\Requests\V1\Application\IndexRequest;
 use App\Http\Requests\V1\Application\UpdateRequest;
 use App\Models\User;
 use App\Services\ApplicationService;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class ApplicationController extends Controller
 {
@@ -24,17 +23,15 @@ class ApplicationController extends Controller
     public function adminIndex(IndexRequest $request)
     {
         $applications = $this->service->get($request->all());
-        return response()->json($applications);
-        return view('cabinet.application.create');
+        return view('cabinet.application.index', compact('applications'));
     }
 
-    public function index(IndexRequest $request)
+    public function index(IndexRequest $request): View
     {
         $params = $request->all();
         $params['user_id'] = User::getAuthUser()->getAuthIdentifier();
         $applications = $this->service->get($params);
-        return response()->json($applications);
-        return view('cabinet.application.create');
+        return view('cabinet.application.index', compact('applications'));
     }
 
     /**
@@ -48,38 +45,37 @@ class ApplicationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(CreateRequest $request)
+    public function store(CreateRequest $request): RedirectResponse
     {
-        dd($request->all());
-        return $this->service->create($request->validated());
+        $this->service->create($request->validated());
         return redirect()->route('application.index');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(int $id)
+    public function show(int $id): View
     {
         $application = $this->service->show($id);
-        return response()->json($application);
         return view('cabinet.application.show', compact('application'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRequest $request, int $id)
+    public function update(UpdateRequest $request, int $id): RedirectResponse
     {
-        return $this->service->edit($request->validated(), $id);
+        $this->service->edit($request->validated(), $id);
         return redirect()->route('application.show', $id);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit()
+    public function edit(int $id)
     {
-        return view('cabinet.application.edit');
+        $application = $this->service->show($id);
+        return view('cabinet.application.edit', compact('application'));
     }
 
     /**

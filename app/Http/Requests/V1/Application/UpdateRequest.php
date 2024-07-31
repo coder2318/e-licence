@@ -16,6 +16,7 @@ class UpdateRequest extends ValidationRequest
         return [
             'reason_rejected' => ['nullable'],
             'name' => ['nullable'],
+            'status' => ['nullable'],
             'address' => ['nullable'],
             'tin' => ['nullable'],
             'phone' => ['nullable'],
