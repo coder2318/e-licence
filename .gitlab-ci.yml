@@ -1,0 +1,36 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  SSH_PRIVATE_KEY: $SSH_PRIVATE_KEY
+  REMOTE_USER: "miit"
+  REMOTE_HOST: "brand.miit.uz"
+  DEPLOY_PATH: "/var/www/brand-miit-uz"
+
+before_script:
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+
+app_build:
+  stage: build
+  tags:
+    - dev
+  only:
+    - dev
+  script:
+    - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
+    - cp .env.example .env
+    - php artisan key:generate
+    - vendor/bin/phpunit
+
+app_deploy:
+  stage: deploy
+  tags:
+    - prod
+  only:
+    - prod
+  script:
+    - ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "cd $DEPLOY_PATH && git pull origin ${CI_COMMIT_BRANCH} && composer install --no-dev && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache"
+
